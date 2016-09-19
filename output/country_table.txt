@@ -1,0 +1,194 @@
+Algeria%AFRICA
+Angola%AFRICA
+Benin%AFRICA
+Botswana%AFRICA
+Burkina%AFRICA
+Burundi%AFRICA
+Cameroon%AFRICA
+Cape Verde%AFRICA
+Central African Republic%AFRICA
+Chad%AFRICA
+Comoros%AFRICA
+Congo%AFRICA
+Congo, Democratic Republic of%AFRICA
+Djibouti%AFRICA
+Egypt%AFRICA
+Equatorial Guinea%AFRICA
+Eritrea%AFRICA
+Ethiopia%AFRICA
+Gabon%AFRICA
+Gambia%AFRICA
+Ghana%AFRICA
+Guinea%AFRICA
+Guinea-Bissau%AFRICA
+Ivory Coast%AFRICA
+Kenya%AFRICA
+Lesotho%AFRICA
+Liberia%AFRICA
+Libya%AFRICA
+Madagascar%AFRICA
+Malawi%AFRICA
+Mali%AFRICA
+Mauritania%AFRICA
+Mauritius%AFRICA
+Morocco%AFRICA
+Mozambique%AFRICA
+Namibia%AFRICA
+Niger%AFRICA
+Nigeria%AFRICA
+Rwanda%AFRICA
+Sao Tome and Principe%AFRICA
+Senegal%AFRICA
+Seychelles%AFRICA
+Sierra Leone%AFRICA
+Somalia%AFRICA
+South Africa%AFRICA
+South Sudan%AFRICA
+Sudan%AFRICA
+Swaziland%AFRICA
+Tanzania%AFRICA
+Togo%AFRICA
+Tunisia%AFRICA
+Uganda%AFRICA
+Zambia%AFRICA
+Zimbabwe%AFRICA
+Afghanistan%ASIA
+Bahrain%ASIA
+Bangladesh%ASIA
+Bhutan%ASIA
+Brunei%ASIA
+Burma (Myanmar)%ASIA
+Cambodia%ASIA
+China%ASIA
+East Timor%ASIA
+India%ASIA
+Indonesia%ASIA
+Iran%ASIA
+Iraq%ASIA
+Israel%ASIA
+Japan%ASIA
+Jordan%ASIA
+Kazakhstan%ASIA
+Korea, North%ASIA
+Korea, South%ASIA
+Kuwait%ASIA
+Kyrgyzstan%ASIA
+Laos%ASIA
+Lebanon%ASIA
+Malaysia%ASIA
+Maldives%ASIA
+Mongolia%ASIA
+Nepal%ASIA
+Oman%ASIA
+Pakistan%ASIA
+Philippines%ASIA
+Qatar%ASIA
+Russian Federation%ASIA
+Saudi Arabia%ASIA
+Singapore%ASIA
+Sri Lanka%ASIA
+Syria%ASIA
+Tajikistan%ASIA
+Thailand%ASIA
+Turkey%ASIA
+Turkmenistan%ASIA
+United Arab Emirates%ASIA
+Uzbekistan%ASIA
+Vietnam%ASIA
+Yemen%ASIA
+Albania%EUROPE
+Andorra%EUROPE
+Armenia%EUROPE
+Austria%EUROPE
+Azerbaijan%EUROPE
+Belarus%EUROPE
+Belgium%EUROPE
+Bosnia and Herzegovina%EUROPE
+Bulgaria%EUROPE
+Croatia%EUROPE
+Cyprus%EUROPE
+Czech Republic%EUROPE
+Denmark%EUROPE
+Estonia%EUROPE
+Finland%EUROPE
+France%EUROPE
+Georgia%EUROPE
+Germany%EUROPE
+Greece%EUROPE
+Hungary%EUROPE
+Iceland%EUROPE
+Ireland%EUROPE
+Italy%EUROPE
+Latvia%EUROPE
+Liechtenstein%EUROPE
+Lithuania%EUROPE
+Luxembourg%EUROPE
+Macedonia%EUROPE
+Malta%EUROPE
+Moldova%EUROPE
+Monaco%EUROPE
+Montenegro%EUROPE
+Netherlands%EUROPE
+Norway%EUROPE
+Poland%EUROPE
+Portugal%EUROPE
+Romania%EUROPE
+San Marino%EUROPE
+Serbia%EUROPE
+Slovakia%EUROPE
+Slovenia%EUROPE
+Spain%EUROPE
+Sweden%EUROPE
+Switzerland%EUROPE
+Ukraine%EUROPE
+United Kingdom%EUROPE
+Vatican City%EUROPE
+Antigua and Barbuda%AMERICA
+Bahamas%AMERICA
+Barbados%AMERICA
+Belize%AMERICA
+Canada%AMERICA
+Costa Rica%AMERICA
+Cuba%AMERICA
+Dominica%AMERICA
+Dominican Republic%AMERICA
+El Salvador%AMERICA
+Grenada%AMERICA
+Guatemala%AMERICA
+Haiti%AMERICA
+Honduras%AMERICA
+Jamaica%AMERICA
+Mexico%AMERICA
+Nicaragua%AMERICA
+Panama%AMERICA
+Saint Kitts and Nevis%AMERICA
+Saint Lucia%AMERICA
+Saint Vincent and the Grenadines%AMERICA
+Trinidad and Tobago%AMERICA
+United States%AMERICA
+Australia%OCEANIA
+Fiji%OCEANIA
+Kiribati%OCEANIA
+Marshall Islands%OCEANIA
+Micronesia%OCEANIA
+Nauru%OCEANIA
+New Zealand%OCEANIA
+Palau%OCEANIA
+Papua New Guinea%OCEANIA
+Samoa%OCEANIA
+Solomon Islands%OCEANIA
+Tonga%OCEANIA
+Tuvalu%OCEANIA
+Vanuatu%OCEANIA
+Argentina%AMERICA
+Bolivia%AMERICA
+Brazil%AMERICA
+Chile%AMERICA
+Colombia%AMERICA
+Ecuador%AMERICA
+Guyana%AMERICA
+Paraguay%AMERICA
+Peru%AMERICA
+Suriname%AMERICA
+Uruguay%AMERICA
+Venezuela%AMERICA

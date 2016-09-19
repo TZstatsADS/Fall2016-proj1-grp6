@@ -4,14 +4,13 @@
 Term: Fall 2016
 
 + Team #
-+ Projec title: Lorem ipsum dolor sit amet
++ Projec title: So what happens after they move to USA?
 + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
-+ Project summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	+ Chi Zhi(cz2378)
+	+ Huilong An()
+	+ Yiwei Sun()
+	+ Youzhu Liu()
++ Project summary: Using the 2014 American Community Surveys, this report provides a detailed picture of the more than xxxxx million immigrants (legal and illegal) and their U.S.-born children (under 18) in the United States by place of birth, state. One of the most important findings is that immigration has dramatically increased the size of the nation??s low-income population; however, there is great variation among immigrants by sending country and region. Moreover, many immigrants make significant progress the longer they live in the country. But even with this progress, immigrants who have been in the United States for 20 years are much more likely to live in poverty, lack health insurance, and access the welfare system than are native-born Americans. The large share of immigrants arriving as adults with relatively little education partly explains this phenomenon.
 	
 **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
