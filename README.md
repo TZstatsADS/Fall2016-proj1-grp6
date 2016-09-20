@@ -3,7 +3,7 @@
 
 Term: Fall 2016
 
-+ Team #
++ Team #6
 + Projec title: So what happens after they move to USA?
 + Team members
 	+ Chi Zhi(cz2378)
