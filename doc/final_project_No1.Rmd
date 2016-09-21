@@ -1,0 +1,565 @@
+---
+title: "So what happens after they move to USA?"
+author: "Chi Zhi, Huilong An,Yiwei Sun, Youzhu Liu"
+date: "2016.09.18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+Using the 2014 American Community Surveys, this report provides a detailed picture of the a sample of more than 3 million immigrants (legal and illegal) and their U.S.-born children (under 18) in the United States by place of birth, state. One of the most important findings is that immigration has dramatically increased the size of the nation??s low-income population; however, there is great variation among immigrants by sending country and region. Moreover, many immigrants make significant progress the longer they live in the country. But even with this progress, immigrants who have been in the United States for 20 years are much more likely to live in poverty, lack health insurance, and access the welfare system than are native-born Americans. The large share of immigrants arriving as adults with relatively little education partly explains this phenomenon.
+
+
+## Immigrants Distribution Around World
+
+### 1.1 Global Immigrants distribution (choropleth)
+
+On world map, to show total number of immigrants from every country
+interactive properies: move mouse to centain country to show the number
+```{r echo=FALSE,message=FALSE,warning=FALSE,results='hide'}
+#libraries
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(mapdata)
+library(plotly)
+library(tidyr)
+
+#load data
+setwd("/users/andy/desktop/fall_study")
+setwd("./data science")
+
+data=fread("./integ_data.csv",stringsAsFactors = F)
+country_info=select(data,POBP) %>% 
+  group_by(POBP) %>%
+  summarise(count=n())
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# project numbers to country names
+info_table=read.table("./po.txt",stringsAsFactors=FALSE,sep=c(' '))
+country_info$POBP=factor(country_info$POBP,levels=info_table$V1,labels=info_table$V2)
+
+#write.csv(country_info,"./country_count_info.csv")
+###world map
+library(plotly)
+# the code info
+df = read.csv('https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv')
+# get code
+code=rep(NA,length(country_info$POBP))
+k=0
+for (i in tolower(as.character(country_info$POBP))){
+  k = k + 1
+  for (j in seq(tolower(as.character(df$COUNTRY)))){
+    if (grepl(i,tolower(as.character(df$COUNTRY))[j])){
+      code[k] = as.character(df$CODE)[j]
+      break;
+    }
+  }
+}
+country_info$code=code
+#_____the plot_____#
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = 'Mercator')
+)
+#info_table$V3
+#country_info[info_table$V3=='',]
+plot_ly(country_info[info_table$V3=='',], z = count, text =POBP, locations=code,type = 'choropleth',
+        color = count, colorscale='Reds',marker = list(line = l),
+        colorbar = list(tickprefix = ':', title = 'Population')) %>%
+  layout(title = "Distribution of Immigrant People<br>(Move mouse onto the country)",
+         geo = g)
+```
+
+### 1.2 Global Immigrants distribution (Bubble)
+
+Kind of bubble plot, on a ball, show total number of immigrants with different age groups and sex groups for every country, interactive properies: rotate it and put mouse to certain bubble
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+###world
+# get the world spatial data
+world=map_data("world")
+
+# Annoying things: labels the age and sex
+new=data %>% select(c(POBP,AGEP,SEX))
+new$POBP=factor(new$POBP,levels=info_table$V1,labels=info_table$V2)
+new$SEX=factor(new$SEX,levels=c(1,2),labels=c('male','female'))
+new$AGEP=cut(new$AGEP,5)
+levels(new$AGEP)=c(1,2,3,4,5)
+new$AGEP=factor(new$AGEP,levels=c(1,2,3,4,5),labels=c('very young','young','middle','old','very old'))
+
+new=group_by(new,POBP,SEX,AGEP) %>%
+  summarise(count=n())
+# eliminate American natives
+usa_state=info_table[info_table$V3 != '',]$V2
+# country_table is a table list the country name and its corresponding continet
+world_table=read.table("country_table.txt",sep="%",stringsAsFactors = F)
+# put continent names for each row
+new=new[!(new$POBP %in% usa_state),]
+cont_ass=rep(NA,length(new$POBP))
+for (i in seq(new$POBP)){
+  for (j in seq(world_table$V1)){
+    if (grepl(tolower(new$POBP[i]),sub(" ","",tolower(world_table$V1[j])))){
+      cont_ass[i]=as.character(world_table$V2[j])
+    }
+  }
+}
+new$cont=cont_ass
+#view on the missing part
+#unique(as.character(new[which(is.na(new$cont)),]$POBP))
+# add some continents by hand
+for (i in seq(new$POBP)){
+  if (as.character(new$POBP[i]) %in% c('England','Scotland','Yugoslavia','BosniaandHerzegovina')){
+    new$cont[i]='EUROPE'
+  }
+  if (as.character(new$POBP[i]) %in% c('HongKong','Taiwan')){
+    new$cont[i]='ASIA'
+  }
+}
+#write.csv(new,"country_sex_age_cont.csv")
+
+# set the sampling process to allocate long and lat for each country for different bubbles
+map_world=map_data("world")
+map_world$region=tolower(map_world$region)
+map_world$region=sub(" ",'',map_world$region)
+new=read.csv("./country_sex_age_cont.csv")
+used = na.omit(new)
+
+lon=rep(NA,length(used$POBP))
+lat=rep(NA,length(used$POBP))
+for(i in seq(used$cont)){
+  hey=subset(map_world,region==tolower(as.character(used$POBP[i])))
+  hey=hey[sample(seq(nrow(hey)),0.01*nrow(hey),replace=F),]
+  lon[i]=mean(hey$long)
+  lat[i]=mean(hey$lat)
+}
+used$lon=lon
+used$lat=lat
+View(used)
+#write.csv(used,"Add_lon_lat_count.csv")
+#spatial data might have some different name for different country
+#add long lat to some missing country
+#53.470529,-2.387015
+for (i in seq(used$POBP)){
+  if (as.character(used$POBP[i]) %in% c('UnitedKingdom','England','Scotland','Yugoslavia','BosniaandHerzegovina')){
+    aub=subset(map_world,region=='uk')
+    aub=aub[sample(seq(nrow(aub)),0.01*nrow(aub),replace = F),]
+    used$lon[i]=mean(aub$long)
+    used$lat[i]=mean(aub$lat)
+  }
+}
+#write.csv(used,"adjusted_add_lon_lat_count.csv")
+#library(ggsubplot)
+#p <- ggplot()  + geom_polygon(data=map_world,aes(x=long, y=lat,group=group), col = "blue4", fill = "lightgray") + theme_bw()
+#print(p)
+#p+geom_subplot2d(aes(long, lat, subplot = geom_bar(aes(x = SEX, y = AGEP, fill = count, width=1), position = "identity")), ref = NULL, data = used)
+# plot
+used=read.csv("adjusted_add_lon_lat_count.csv")
+p=plot_ly(used, lat = lat, lon = lon, text = paste(used$POBP,':',SEX), color = AGEP, size = count,type = 'scattergeo')
+# the style
+geo <- list(
+  showland = TRUE,
+  showlakes = FALSE,
+  showcountries = TRUE,
+  showocean = TRUE,
+  landcolor = toRGB("#f2ffcc"),
+  lakecolor = toRGB("white"),
+  oceancolor = toRGB("white"),
+  projection = list(
+    type = 'orthographic',
+    rotation = list(
+      lon = -100,
+      lat = 40,
+      roll = 0
+    )
+  ),
+  lonaxis = list(
+    showgrid = TRUE,
+    gridcolor = toRGB("gray40"),
+    gridwidth = 0.5
+  ),
+  lataxis = list(
+    showgrid = TRUE,
+    gridcolor = toRGB("gray40"),
+    gridwidth = 0.5
+  )
+)
+# plot out
+layout(p, showlegend = FALSE, geo = geo,
+       title = 'Immigrant Distribution : SEX and AGE')
+
+```
+
+### 1.3 American Immigrants distribution (Country)
+
+Kind of bubble plot, on US map, to show total number of immigrants with different born countries, and where they settled down in US
+interactive properies: click the labels in right hand and put mouse to certain bubble
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# where the immigrants settle down in america
+# make data processes
+world_table$V1=tolower(sub(' ','',world_table$V1))
+world_dict=rep(NA,nrow(world_table))
+for (i in seq(world_table$V1)){
+  world_dict[world_table$V1[i]]=world_table$V2[i]
+}
+data=read.csv("./integ_data.csv")
+us_dist=select(data,c(POBP,ST,NATIVITY)) %>%
+  filter(NATIVITY==2) %>%
+  group_by(ST,POBP)%>%
+  summarise(count=n())
+# load states information
+st_info=read.table("st.txt",sep=c('.','/'),stringsAsFactors = F)
+per=strsplit(st_info$V2,'/')
+zip=rep(NA,nrow(st_info))
+for (i in seq(nrow(st_info))){
+  zip[i]=per[[i]][2]
+}
+st_info$zip=zip
+dict=rep(NA,nrow(st_info)) # for matching the zip
+for (i in seq(st_info$V1)){
+  dict[st_info$V1[i]]=zip[i]
+}
+us_dist$location=dict[us_dist$ST]
+# load continent info
+info_dict=rep(NA,nrow(info_table))
+for (i in seq(info_table$V1)){
+  info_dict[info_table$V1[i]]=info_table$V2[i]
+}
+us_dist$country=info_dict[us_dist$POBP]
+#write.csv(us_dist,"./us_imm_dist.csv")
+# fix a liitel world_dict:
+#c('England','Scotland','Yugoslavia','BosniaandHerzegovina')){
+#'EUROPE'
+#if (as.character(new$POBP[i]) %in% c('HongKong','Taiwan')){
+#  new$cont[i]='ASIA'
+world_dict['unitedkingdom']='EUROPE'
+world_dict['england']='EUROPE'
+world_dict['scotland']='EUROPE'
+world_dict['yugoslavia']='EUROPE'
+world_dict['bosniaandHerzegovina']='EUROPE'
+world_dict['hongkong']='ASIA'
+world_dict['taiwan']='ASIA'
+
+us_dist$region=world_dict[tolower(us_dist$country)]
+#write.csv(us_dist,'./us_imm_dist__region.csv')
+us_dist2=na.omit(as.data.frame(us_dist))
+
+# data set for continents based
+us_region=select(us_dist2,c(location,country,region,count)) %>% 
+  group_by(location,region)%>%
+  summarise(total=sum(count))
+
+
+library(plotly)
+us_region_use=as.data.frame(us_region) %>%
+  group_by(location) %>%
+  summarise(count=sum(total))
+
+hover <- with(us_region_use, paste(location, '<br>','<br>',"cases:", count))
+# give state boundaries a white border
+l <- list(color = toRGB("white"), width = 2)
+# specify some map projection/options
+g <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  landcolor = toRGB("#f2ffcc"),
+  showlakes = TRUE,
+  lakecolor = toRGB('white')
+)
+# country the bubble size
+group_ind=max(us_dist$count)/30
+
+plot_ly(us_dist, type = 'scattergeo', mode = 'markers', locations = location,
+        locationmode = 'USA-states', text = paste(count, "cases"),
+        color = as.ordered(country), marker = list(size =count%/%group_ind+5), inherit = F) %>% 
+  layout(title = 'Immigrant Distribution of USA <br>(Hover for breakdown,right for selection)', geo = g)
+```
+
+### 1.4 American Immigrants distribution (Continent)
+
+Kind of bubble plot, on US map, to show total number of immigrants with different ###born continent, and where they settled down in US
+nteractive properies: click the labels in right hand and put mouse to certain bubble
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+plot_ly(us_region, type = 'scattergeo', mode = 'markers', locations = location,
+        locationmode = 'USA-states', text = paste(total, "cases"),
+        color = as.ordered(region), marker = list(size =total%/%group_ind+5), inherit = F) %>% 
+  layout(title = 'Immigrant Distribution of USA <br>(Hover for breakdown,click right for selection)', geo = g)
+```
+
+### 1.5 American Immigrants distribution (choropleth)
+
+Kind of choropleth plot, on US map, to show total number of immigrants, and where they settled down in US
+interactive properies: put mouse to certain part
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# make data
+per_dict=rep(NA,length(st_info$zip))
+for (i in seq(st_info$zip)){
+  per_dict[st_info$zip[i]]=st_info$V2[i]
+}
+haha=per_dict[us_region_use$location]
+
+plot_ly(us_region_use, z=count,type = 'choropleth', locations = location,
+        locationmode = 'USA-states', color=count,colors='Reds',text=haha,
+        marker = list(line=l)) %>% 
+  layout(title = 'Immigrant Distribution of USA', geo = g)
+```
+
+### 1.6 Pearson test on the tendency of immigrant
+
+e.g. Does people from different country like to settle down in certain part of US? 
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# Pearson Chi-square test for immigrant habit
+# from country to country
+test_data=read.csv('./us_imm_dist__region.csv')
+# make tables
+make_table=xtabs(count~location+country,test_data)
+make_table2=xtabs(count~location+region,test_data)
+# for different country
+chisq.test(make_table)
+# for different continent
+chisq.test(make_table2)
+```
+P-value is extremly small, which means there is overwhelming evidence to show the dependency between where to settle down and from which country, and between where to settle down and from which continent
+
+
+## Hi! Immigrants!
+
+### 2.1 Word Cloud of Immigrants
+
+We picked up the most frequent words in several columns to describe the most frequent profile of an immigration. Take female from China and male from Mexico for example.
+
+Female Immigrants from China are most frequently:
+
+*  Native Born Parents
+*  Entry after 2000
+*  Naturalization
+*  Lives in California
+*  Age 50
+*  Fluent in English
+*  Employee of a private for-profit company or business, or of an individual, for wages, salary, or commissions
+*  Bachelor Degree
+
+
+![Female from China](Chinese_female.png)
+
+
+Male Immigrants from Mexico are most frequently:
+
+*  Entry after 2000
+*  Not a citizen of the U.S.
+*  Lives in California
+*  Age 40
+*  Not a good English speaker
+*  Employee of a private for-profit company or business, or of an individual, for wages, salary, or commissions
+*  High school Degree
+
+
+![Male from Mexico](Mexican_male.png)
+
+### 2.2 Tracing US-born Immigrants
+
+[Click Here](http://zhichi1992.ucoz.net/ADS-proj1/US-born-immigrants.html)
+
+Let's narrow down to US-born immigrants, which may sounds confusing in the first glance. US-born immigrants are just those who are not first-generation immigrants and now not US nativity. 
+
+In this part, we traced back where this population are born and where are they now. This is interesting because they are taking about 45% of total non-US population in the data set, which means US itself generates 45% so-called "immigrantion".
+
+In the first graph, we can tell 35.5% of this population are born in Texas, which is quite large compared with other states like California, New York and Illinois. This might be because Texas has stricter control of naturalization. Besides, nearly 61% of TX-born immigrants now in Florida. Another noticeable fact is California attracts quite a lot US-immigrants, as you can see in the chord and we will dicuss more in the next graph.
+
+The next graph shows where this population lives now. It is obvious that California is the most attractive place for US-born immigrants to live, which has about 2/3 of total population. Florida is the second choice, which has more than 20% of population. And we can see there are not many preference for this population. Thought they are from all around the US, the states they are living now are not as many as the birth places.
+
+## Education Status
+
+The education attainment plot of 10 countries/areas with largest immigrant groups.
+For Immigrants from Canada, China, India, Korea, Philippine, the number of bachelors is highest among all education levels, followed by the number of high school diploma. For Cuba, El Salvador, Mexico and Vietnam, the number of high school diploma is highest among all education levels.
+
+### 3.1 Between the Immigration Groups
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, results='hide'}
+## ads project 1 
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(outliers)
+#read the project main data
+data=fread("integ_data.csv")
+```
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+data[,c("V1"):=NULL]
+# read the adjusted place of birth data
+pof=read.table("po.txt",sep=" ")[,1:3]
+names(pof)=c("code","state","state_abb")
+pof=tbl_df(pof)
+pof$code=unlist(lapply(pof$code, function(y) sub('^0+(?=[1-9])', '', y, perl=TRUE)))
+
+schl=read.table("result_school.txt",sep="")
+names(schl)=c("code","Education level")
+schl$code=unlist(lapply(schl$code, function(y) sub('^0+(?=[1-9])', '', y, perl=TRUE)))
+
+code=c("b",1:7)
+decade=c("Born in the US","-1950","1950 - 1959","1960 - 1969","1970 - 1979","1980 - 1989","1990 - 1999","2000 or later")
+DECADE=data.frame(code,decade)
+
+states=pof[1:56,]
+others=pof[57:215,]
+
+#merge POBP in data with pof$code, give name
+data$Place_of_Birth=pof[match(data$POBP,pof$code),2]
+#merge SCHL with 
+data$Education_Level=schl[match(data$SCHL,schl$code),2]
+#merge DECADE with DECADE name
+data$Entry_Decade=DECADE[match(data$DECADE,DECADE$code),2]
+
+
+#completed cases for test
+com_data=data[complete.cases(data),]
+
+#divide data into immigrants/non-immigrants
+noni=filter(data,POBP %in% states$code)
+imm=filter(data,POBP %in% others$code)
+#find the largest immigration groups
+top10=names(sort(table(imm$POBP),decreasing=T))[1:10]#rank the imm numbers, find top 10
+imm_top10=filter(imm,POBP %in% top10)
+com_imm_top10=filter(imm_top10,!is.na(Education_Level)) #top 10 immigrants with completed SCHL info
+#descriptive data
+#ggplot(data, alpha = 0.2,aes(x = WAGP, fill = POBP))+geom_histogram(position="dodge")
+com_imm_top10=arrange(com_imm_top10,SCHL)
+com_imm_top10$Education_Level=factor(com_imm_top10$Education_Level, 
+                        levels = com_imm_top10$Education_Level[order(com_imm_top10$SCHL)])
+rm(pof,DECADE,schl,com_data)
+p1=ggplot(com_imm_top10,aes(Place_of_Birth,Education_Level,col=Place_of_Birth,size=..n..))+ 
+      geom_count()+
+      labs(col="count",size="count")+
+      xlab("Place of Birth")+ylab("Education Attainment(Grade)")+
+      theme(
+        plot.title = element_text(color="red", size=14, face="bold.italic"),
+        axis.title.x = element_text(color="blue", size=14, face="bold"),
+        axis.title.y = element_text(color="#993333", size=14, face="bold")
+      )
+ggplotly(p1)
+    
+```
+
+### 3.2 Along the Years
+
+Here is the plot of 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+#year vs education level
+ggplot(filter(com_imm_top10,SCHL>15),aes(Education_Level,fill=Education_Level))+ 
+  stat_count()+facet_grid( ~ Entry_Decade)+
+  theme(legend.position="bottom")+
+ theme(
+    plot.title = element_text(color="red", size=14, face="bold.italic"),
+    axis.title.x = element_text(color="blue", size=14, face="bold"),
+    axis.title.y = element_text(color="#993333", size=14, face="bold"),
+    axis.text.x = element_blank())
+```
+
+
+The freqency plot of Education level over the years show:
+
+The percentages of higher education levels of immigrants entered US like bachelors masters are increasing along time. There is a peak of high level educated immigrants in **1970-1979**, which we assume it??s because of the The Immigration and Naturalization Act of 1965. It??s also known as the Hart-Celler Act, abolished an earlier quota system based on national origin and established a new immigration policy based on reuniting immigrant families and attracting skilled labor to the United States.
+
+During 1980-1990, the majority of immigrants has high school diploma. There are 2 reasons for the increment of low education level immigrants. 
+
+*The refugees: In 1975-1979, the refugees from Vietnam and Cambodia is 254k, while this number raised to 562k in 1980-1987. After 1979, Fall of Communism, the war in Yugoslavia and Somali Civil War resulted a refugee flood. 
+*Illegal Immigrants: After the enforcement of the law in 1965, the illegal immigrants increased largely, who became legal after a law 1986. Then the reuniting immigrant policies resulted a chain of low-education level immigrants.  
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# year of entry vs education frequency
+x=filter(com_imm_top10,SCHL>15) %>% group_by(Entry_Decade, Education_Level) %>% summarise (n = n()) %>% mutate(freq = n / sum(n))
+p5=ggplot(x,aes(x=Entry_Decade,y=freq,col=Education_Level,group=Education_Level,lty=Education_Level))+geom_line()+
+  theme(legend.position="bottom")+
+ theme(
+    plot.title = element_text(color="red", size=14, face="bold.italic"),
+    axis.title.x = element_text(color="blue", size=14, face="bold"),
+    axis.title.y = element_text(color="#993333", size=14, face="bold")
+  )
+p5
+
+```
+
+## Working Status
+
+In this part, we analyze the relationships between wage and people's immigration status.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+
+com_data1=data[complete.cases(data[,c(17,21)]),]
+noni1=filter(com_data1,POBP %in% states$code)
+imm1=filter(com_data1,POBP %in% others$code)
+
+top10_1=names(sort(table(imm1$POBP),decreasing=T))[1:10]#rank the imm numbers, find top 10
+imm_top10_1=filter(imm1,POBP %in% top10_1)
+nonitop10_1=names(sort(table(noni1$POBP),decreasing=T))[1:10]
+noni_top10_1=filter(noni1,POBP %in% nonitop10_1)
+imm_top10_1_new=filter(imm_top10_1,PERNP!=0)
+noni_top10_1_new=filter(noni_top10_1,PERNP!=0)
+
+imm_top10_1_new$PERNP_log=log(imm_top10_1_new$PERNP)
+imm_top10_1_new=imm_top10_1_new[complete.cases(imm_top10_1_new[,23]),]
+library(outliers)
+nooutlier<-imm_top10_1_new %>%
+  group_by(Place_of_Birth) %>%
+  filter(!PERNP_log %in% c(outlier(PERNP_log)))
+
+ggplot(nooutlier, aes(x=factor(Place_of_Birth), y=PERNP_log,fill=Place_of_Birth))+
+  geom_boxplot()+xlab("Place of Birth")+ylab("Log value of people's income")
+ggplotly()
+```
+From the boxplots of the Top 10 immigration Country, we can see that the income of these countries' immigrants vary from each other. India immigrants earn most averagely among all the countries and Mexico immigrants earn relatively low compared with other immigrants.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+m<-ggplot(nooutlier, aes(PERNP_log, fill = Place_of_Birth)) +
+  geom_histogram(binwidth = 1)+xlab("Log value of people's income")
+ggplotly(m)
+```
+From the above histograms, it's clear that people's amount in each earning section are different and immigrants' log income is mostly around 10. It seems that though Mexico immigrants' income are quite small, their log income is mostly around 9, 10 and 11, while other countries' immigrations log incomes are quite diverse evenly.
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+imm_top10_2_new=filter(imm_top10_1,WKHP!=0)
+noni_top10_2_new=filter(noni_top10_1,WKHP!=0)
+
+nooutlier3<-imm_top10_2_new %>%
+  group_by(Place_of_Birth) %>%
+  filter(!WKHP %in% c(outlier(WKHP)))
+
+ggplot(nooutlier3, aes(x=factor(Place_of_Birth), y=WKHP,fill=Place_of_Birth))+
+  geom_boxplot(outlier.shape = NA)+ylab("Working Hours Per Week")+xlab("Place of Birth")
+ggplotly()
+```
+We also has the boxplot for working hours. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+m3<-ggplot(nooutlier3, aes(WKHP, fill = Place_of_Birth)) +
+  geom_histogram(binwidth = 10)+xlab("Working Hours Per Week")
+ggplotly(m3)
+nooutlier4<-noni_top10_2_new %>%
+  group_by(Place_of_Birth) %>%
+  filter(!WKHP %in% c(outlier(WKHP)))
+
+m4<-ggplot(nooutlier4, aes(WKHP, fill = Place_of_Birth)) +
+  geom_histogram(binwidth = 10)+xlab('Working Hours Per Week')
+ggplotly(m4)
+
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+t.test(imm_top10_1_new$PERNP,noni_top10_1_new$PERNP,alternative="less")
+t.test(imm_top10_1_new$WKHP,noni_top10_1_new$WKHP,alternative="less")
+
+```
+We perform 2 sample t tests on income/working hours and immigration status. From the p-value, we can see that income is actually related to immigartion status, but working hours are quite the same among all people.
