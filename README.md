@@ -16,6 +16,7 @@ Term: Fall 2016
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
+For the final report, please check [So what happens after they move to USA?](http://rpubs.com/andyan/project1_an_sun_liu.) in RPubs.
 ```
 proj/
 ├── lib/
