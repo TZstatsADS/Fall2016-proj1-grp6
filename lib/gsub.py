@@ -2,7 +2,7 @@
 """
 Created on Fri Sep 16 16:34:45 2016
 
-@author: Andy
+@author: Huilong
 """
 
 import bs4
